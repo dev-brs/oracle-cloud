@@ -126,7 +126,21 @@ O `guard` dá SOFTSTOP nas VMs ligadas se o custo do mês passar de `--max-cost`
 scripts/cost-guard/install.sh      # VM_HOST=ubuntu@<ip> e VM_KEY=<chave> sobrescrevem o padrão
 ```
 
-Logs: `journalctl -u cost-guard` na VM. Depois de um desligamento, a VM só volta quando você a ligar (Console ou `terraform apply`), de preferência no mês seguinte.
+Logs: `journalctl -u cost-guard` na VM. Depois de um desligamento, a VM só volta quando você a ligar, de preferência no mês seguinte: `scripts/oci-cost.py start` (ou Console → Compute → Start). O `terraform apply` **não** liga uma VM parada.
+
+### Testar a guarda
+
+1. Sem desligar nada, no PC e na VM:
+   ```bash
+   ~/.venvs/oci/bin/python scripts/oci-cost.py guard --dry-run --max-cost -1     # deve listar a VM como alvo
+   ssh ... 'sudo /opt/cost-guard/venv/bin/python /opt/cost-guard/oci-cost.py guard --auth instance_principal --dry-run --max-cost -1'
+   ```
+2. Ponta a ponta, desligando de verdade pela própria VM (a VM fica fora do ar por alguns minutos):
+   ```bash
+   ssh ... 'sudo /opt/cost-guard/venv/bin/python /opt/cost-guard/oci-cost.py guard --auth instance_principal --max-cost -1'
+   ~/.venvs/oci/bin/python scripts/oci-cost.py          # a VM deve aparecer STOPPING e depois STOPPED
+   ~/.venvs/oci/bin/python scripts/oci-cost.py start    # religa; o timer volta a rodar 5 min após o boot
+   ```
 
 ## 5. Expor um serviço
 

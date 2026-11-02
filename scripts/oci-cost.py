@@ -3,6 +3,7 @@
 
   oci-cost.py [report]   custo do mês atual e do anterior por SKU e uso da A1 contra a franquia Always Free
   oci-cost.py guard      dá SOFTSTOP nas VMs se a cobrança começou (ou está a ponto de começar)
+  oci-cost.py start      liga as VMs paradas (ex.: no mês seguinte a um desligamento do guard)
 
 O guard desliga se o custo do mês passar de --max-cost (padrão 0) OU se o uso da A1 no mês
 chegar a franquia - margem. A margem (--margin-hours, padrão 24 h do shape ligado) cobre o
@@ -153,9 +154,23 @@ def guard(args):
             d["compute"].instance_action(i.id, "SOFTSTOP")
 
 
+def start(args):
+    cfg, tenancy, kw = clients(args.auth, args.profile)
+    compute, insts = instances(cfg, kw, compartments(cfg, kw, tenancy, args.auth, args.compartment_id))
+    stopped = [i for i in insts if i.lifecycle_state == "STOPPED"]
+    if not stopped:
+        print("nenhuma VM parada")
+    for i in stopped:
+        if args.dry_run:
+            print(f"[dry-run] ligaria {i.display_name} ({i.id})")
+        else:
+            print(f"ligando {i.display_name} ({i.id})")
+            compute.instance_action(i.id, "START")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("command", nargs="?", choices=["report", "guard"], default="report")
+    p.add_argument("command", nargs="?", choices=["report", "guard", "start"], default="report")
     p.add_argument("--auth", choices=["config", "instance_principal"], default="config")
     p.add_argument("--profile", default="DEFAULT", help="perfil do ~/.oci/config")
     p.add_argument("--compartment-id", help="só as VMs deste compartment (padrão: todas; na VM, a dela)")
@@ -163,7 +178,7 @@ def main():
     p.add_argument("--margin-hours", type=float, default=24.0, help="horas de folga antes da franquia A1")
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
-    (guard if args.command == "guard" else report)(args)
+    {"report": report, "guard": guard, "start": start}[args.command](args)
 
 
 if __name__ == "__main__":
