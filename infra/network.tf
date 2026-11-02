@@ -77,13 +77,3 @@ resource "oci_core_subnet" "public" {
   route_table_id    = oci_core_route_table.public.id
   security_list_ids = [oci_core_security_list.public.id]
 }
-
-moved {
-  from = oci_core_vcn.minecraft
-  to   = oci_core_vcn.this
-}
-
-moved {
-  from = oci_core_internet_gateway.minecraft
-  to   = oci_core_internet_gateway.this
-}

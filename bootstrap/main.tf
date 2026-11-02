@@ -5,11 +5,6 @@ resource "oci_identity_compartment" "app" {
   enable_delete  = true
 }
 
-moved {
-  from = oci_identity_compartment.minecraft
-  to   = oci_identity_compartment.app
-}
-
 data "oci_objectstorage_namespace" "this" {
   compartment_id = var.tenancy_ocid
 }

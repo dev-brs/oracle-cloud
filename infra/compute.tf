@@ -43,8 +43,3 @@ resource "oci_core_instance" "vm" {
     ignore_changes = [source_details[0].source_id]
   }
 }
-
-moved {
-  from = oci_core_instance.minecraft
-  to   = oci_core_instance.vm
-}

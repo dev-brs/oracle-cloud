@@ -26,7 +26,6 @@ Estado em 2026-11-02. Use este arquivo para continuar em outra sessão. O próxi
 - VCN `10.0.0.0/16` (`dns_label = "minecraft"` fixado no tfvars local: trocar recria VCN, subnet e VM), subnet pública `10.0.1.0/24` e Internet Gateway;
 - security list: 22/TCP só de `admin_cidr` (IP residencial `/32`, que pode mudar), `public_tcp_ports` = 80 e 443, ICMP 3/4;
 - VM `vm`: `VM.Standard.A1.Flex`, **2 OCPU / 12 GB / boot de 200 GB**, Ubuntu 24.04 aarch64.
-  **Pendente em 2026-11-02:** a redução de 4/24 para 2/12 falhou com "Out of host capacity"; a VM ainda está em 4/24 com o nome antigo `minecraft`. Rodar `scripts/retry-vm.sh` até o `terraform apply` do infra passar. Até lá, a guarda de custo desliga a VM antes de a franquia acabar (~15/11).
 
 **Acesso:**
 - IP: `terraform -chdir=infra output -raw public_ip` (IP efêmero; muda só se a VM for recriada)
