@@ -15,15 +15,15 @@ variable "config_file_profile" {
 }
 
 variable "compartment_name" {
-  description = "Nome do compartment que vai agrupar os recursos do servidor."
+  description = "Nome do compartment que agrupa a VM e os recursos de apoio."
   type        = string
-  default     = "minecraft"
+  default     = "app"
 }
 
 variable "state_bucket_name" {
   description = "Nome do bucket que guarda o state do diretório infra/."
   type        = string
-  default     = "minecraft-tfstate"
+  default     = "vm-tfstate"
 }
 
 variable "budget_amount" {
@@ -38,7 +38,7 @@ variable "alert_email" {
 }
 
 variable "function_image" {
-  description = "Imagem da function de auto-stop no OCIR (<region>.ocir.io/<namespace>/minecraft/budget-stop:1). Deixe null no primeiro apply; preencha depois do docker push."
+  description = "Imagem da function de auto-stop no OCIR (<region>.ocir.io/<namespace>/guardrails/budget-stop:1). Deixe null no primeiro apply; preencha depois do docker push."
   type        = string
   default     = null
 }

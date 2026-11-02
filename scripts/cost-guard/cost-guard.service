@@ -1,0 +1,8 @@
+[Unit]
+Description=Desliga a VM se a cobranca da OCI comecar (oci-cost.py guard)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/cost-guard/venv/bin/python /opt/cost-guard/oci-cost.py guard --auth instance_principal

@@ -1,3 +1,3 @@
-bucket    = "minecraft-tfstate"
+bucket    = "vm-tfstate"
 namespace = "<namespace>"
 region    = "sa-saopaulo-1"

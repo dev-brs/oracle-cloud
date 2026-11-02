@@ -45,14 +45,14 @@ data "oci_core_services" "all" {
 }
 
 resource "oci_core_vcn" "functions" {
-  compartment_id = oci_identity_compartment.minecraft.id
+  compartment_id = oci_identity_compartment.app.id
   display_name   = "functions-vcn"
   cidr_blocks    = ["10.10.0.0/16"]
   dns_label      = "fnvcn"
 }
 
 resource "oci_core_service_gateway" "functions" {
-  compartment_id = oci_identity_compartment.minecraft.id
+  compartment_id = oci_identity_compartment.app.id
   vcn_id         = oci_core_vcn.functions.id
   display_name   = "functions-sgw"
 
@@ -62,7 +62,7 @@ resource "oci_core_service_gateway" "functions" {
 }
 
 resource "oci_core_route_table" "functions" {
-  compartment_id = oci_identity_compartment.minecraft.id
+  compartment_id = oci_identity_compartment.app.id
   vcn_id         = oci_core_vcn.functions.id
   display_name   = "functions-rt"
 
@@ -74,7 +74,7 @@ resource "oci_core_route_table" "functions" {
 }
 
 resource "oci_core_security_list" "functions" {
-  compartment_id = oci_identity_compartment.minecraft.id
+  compartment_id = oci_identity_compartment.app.id
   vcn_id         = oci_core_vcn.functions.id
   display_name   = "functions-sl"
 
@@ -86,7 +86,7 @@ resource "oci_core_security_list" "functions" {
 }
 
 resource "oci_core_subnet" "functions" {
-  compartment_id             = oci_identity_compartment.minecraft.id
+  compartment_id             = oci_identity_compartment.app.id
   vcn_id                     = oci_core_vcn.functions.id
   display_name               = "functions-private"
   cidr_block                 = "10.10.1.0/24"
@@ -97,13 +97,13 @@ resource "oci_core_subnet" "functions" {
 }
 
 resource "oci_artifacts_container_repository" "budget_stop" {
-  compartment_id = oci_identity_compartment.minecraft.id
-  display_name   = "minecraft/budget-stop"
+  compartment_id = oci_identity_compartment.app.id
+  display_name   = "guardrails/budget-stop"
   is_public      = false
 }
 
 resource "oci_functions_application" "guardrails" {
-  compartment_id = oci_identity_compartment.minecraft.id
+  compartment_id = oci_identity_compartment.app.id
   display_name   = "guardrails"
   subnet_ids     = [oci_core_subnet.functions.id]
   shape          = "GENERIC_X86"
@@ -120,7 +120,7 @@ resource "oci_functions_function" "budget_stop" {
 
   config = {
     BUDGET_ID      = oci_budget_budget.monthly.id
-    COMPARTMENT_ID = oci_identity_compartment.minecraft.id
+    COMPARTMENT_ID = oci_identity_compartment.app.id
   }
 }
 
@@ -151,20 +151,20 @@ resource "oci_events_rule" "budget_stop" {
 
 resource "oci_identity_dynamic_group" "budget_stop" {
   compartment_id = var.tenancy_ocid
-  name           = "minecraft-budget-stop-fn"
+  name           = "vm-budget-stop-fn"
   description    = "Functions do compartment ${var.compartment_name}"
-  matching_rule  = "ALL {resource.type = 'fnfunc', resource.compartment.id = '${oci_identity_compartment.minecraft.id}'}"
+  matching_rule  = "ALL {resource.type = 'fnfunc', resource.compartment.id = '${oci_identity_compartment.app.id}'}"
 }
 
 resource "oci_identity_policy" "budget_stop" {
   compartment_id = var.tenancy_ocid
-  name           = "minecraft-budget-stop"
+  name           = "vm-budget-stop"
   description    = "Permite a function de auto-stop ler o budget e parar VMs"
 
   statements = [
     "Allow dynamic-group ${oci_identity_dynamic_group.budget_stop.name} to read usage-budgets in tenancy",
-    "Allow dynamic-group ${oci_identity_dynamic_group.budget_stop.name} to manage instance-family in compartment ${oci_identity_compartment.minecraft.name}",
-    "Allow service faas to use virtual-network-family in compartment ${oci_identity_compartment.minecraft.name}",
+    "Allow dynamic-group ${oci_identity_dynamic_group.budget_stop.name} to manage instance-family in compartment ${oci_identity_compartment.app.name}",
+    "Allow service faas to use virtual-network-family in compartment ${oci_identity_compartment.app.name}",
     "Allow service faas to read repos in tenancy",
   ]
 }

@@ -1,33 +1,33 @@
-resource "oci_core_vcn" "minecraft" {
+resource "oci_core_vcn" "this" {
   compartment_id = var.compartment_id
-  display_name   = "minecraft-vcn"
+  display_name   = "vm-vcn"
   cidr_blocks    = ["10.0.0.0/16"]
-  dns_label      = "minecraft"
+  dns_label      = var.vcn_dns_label
 }
 
-resource "oci_core_internet_gateway" "minecraft" {
+resource "oci_core_internet_gateway" "this" {
   compartment_id = var.compartment_id
-  vcn_id         = oci_core_vcn.minecraft.id
-  display_name   = "minecraft-igw"
+  vcn_id         = oci_core_vcn.this.id
+  display_name   = "vm-igw"
   enabled        = true
 }
 
 resource "oci_core_route_table" "public" {
   compartment_id = var.compartment_id
-  vcn_id         = oci_core_vcn.minecraft.id
-  display_name   = "minecraft-public-rt"
+  vcn_id         = oci_core_vcn.this.id
+  display_name   = "vm-public-rt"
 
   route_rules {
     destination       = "0.0.0.0/0"
     destination_type  = "CIDR_BLOCK"
-    network_entity_id = oci_core_internet_gateway.minecraft.id
+    network_entity_id = oci_core_internet_gateway.this.id
   }
 }
 
 resource "oci_core_security_list" "public" {
   compartment_id = var.compartment_id
-  vcn_id         = oci_core_vcn.minecraft.id
-  display_name   = "minecraft-public-sl"
+  vcn_id         = oci_core_vcn.this.id
+  display_name   = "vm-public-sl"
 
   egress_security_rules {
     destination = "0.0.0.0/0"
@@ -44,13 +44,16 @@ resource "oci_core_security_list" "public" {
     }
   }
 
-  ingress_security_rules {
-    description = "Minecraft Java"
-    source      = "0.0.0.0/0"
-    protocol    = "6"
-    tcp_options {
-      min = var.minecraft_port
-      max = var.minecraft_port
+  dynamic "ingress_security_rules" {
+    for_each = var.public_tcp_ports
+    content {
+      description = "TCP ${ingress_security_rules.value} publico"
+      source      = "0.0.0.0/0"
+      protocol    = "6"
+      tcp_options {
+        min = ingress_security_rules.value
+        max = ingress_security_rules.value
+      }
     }
   }
 
@@ -67,10 +70,20 @@ resource "oci_core_security_list" "public" {
 
 resource "oci_core_subnet" "public" {
   compartment_id    = var.compartment_id
-  vcn_id            = oci_core_vcn.minecraft.id
-  display_name      = "minecraft-public"
+  vcn_id            = oci_core_vcn.this.id
+  display_name      = "vm-public"
   cidr_block        = "10.0.1.0/24"
   dns_label         = "public"
   route_table_id    = oci_core_route_table.public.id
   security_list_ids = [oci_core_security_list.public.id]
+}
+
+moved {
+  from = oci_core_vcn.minecraft
+  to   = oci_core_vcn.this
+}
+
+moved {
+  from = oci_core_internet_gateway.minecraft
+  to   = oci_core_internet_gateway.this
 }

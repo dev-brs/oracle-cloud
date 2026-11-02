@@ -6,4 +6,4 @@ alert_email  = "voce@exemplo.com"
 budget_amount = 5
 
 # Preencha depois do docker push (veja README), e rode terraform apply de novo.
-# function_image = "sa-saopaulo-1.ocir.io/<namespace>/minecraft/budget-stop:1"
+# function_image = "sa-saopaulo-1.ocir.io/<namespace>/guardrails/budget-stop:1"

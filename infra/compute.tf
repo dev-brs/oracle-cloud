@@ -11,10 +11,10 @@ data "oci_core_images" "ubuntu_arm" {
   sort_order               = "DESC"
 }
 
-resource "oci_core_instance" "minecraft" {
+resource "oci_core_instance" "vm" {
   compartment_id      = var.compartment_id
   availability_domain = data.oci_identity_availability_domains.this.availability_domains[var.ad_index].name
-  display_name        = "minecraft"
+  display_name        = "vm"
   shape               = "VM.Standard.A1.Flex"
 
   shape_config {
@@ -31,7 +31,7 @@ resource "oci_core_instance" "minecraft" {
   create_vnic_details {
     subnet_id        = oci_core_subnet.public.id
     assign_public_ip = true
-    hostname_label   = "minecraft"
+    hostname_label   = "vm"
   }
 
   metadata = {
@@ -42,4 +42,9 @@ resource "oci_core_instance" "minecraft" {
     # Não recria a VM quando a Canonical publica uma imagem nova.
     ignore_changes = [source_details[0].source_id]
   }
+}
+
+moved {
+  from = oci_core_instance.minecraft
+  to   = oci_core_instance.vm
 }

@@ -17,7 +17,7 @@ variable "compartment_id" {
 variable "ssh_public_key_path" {
   description = "Chave pública SSH autorizada na VM."
   type        = string
-  default     = "~/.ssh/oci_minecraft.pub"
+  default     = "~/.ssh/oci_vm.pub"
 }
 
 variable "admin_cidr" {
@@ -26,15 +26,15 @@ variable "admin_cidr" {
 }
 
 variable "ocpus" {
-  description = "OCPUs da VM A1 (free tier: até 4 no total)."
+  description = "OCPUs da VM A1 (free tier: até 2 no total)."
   type        = number
-  default     = 4
+  default     = 2
 }
 
 variable "memory_gb" {
-  description = "Memória da VM A1 em GB (free tier: até 24 no total)."
+  description = "Memória da VM A1 em GB (free tier: até 12 no total)."
   type        = number
-  default     = 24
+  default     = 12
 }
 
 variable "boot_volume_gb" {
@@ -49,8 +49,14 @@ variable "ad_index" {
   default     = 0
 }
 
-variable "minecraft_port" {
-  description = "Porta TCP do servidor Minecraft Java."
-  type        = number
-  default     = 25565
+variable "public_tcp_ports" {
+  description = "Portas TCP abertas para a internet (o iptables da VM também precisa liberá-las)."
+  type        = list(number)
+  default     = [80, 443]
+}
+
+variable "vcn_dns_label" {
+  description = "DNS label da VCN. Trocar recria a VCN, a subnet e a VM."
+  type        = string
+  default     = "vcn"
 }

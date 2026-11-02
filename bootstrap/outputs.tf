@@ -1,5 +1,5 @@
 output "compartment_id" {
-  value = oci_identity_compartment.minecraft.id
+  value = oci_identity_compartment.app.id
 }
 
 output "namespace" {
