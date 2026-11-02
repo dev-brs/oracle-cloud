@@ -1,0 +1,9 @@
+region         = "sa-saopaulo-1"
+compartment_id = "ocid1.compartment.oc1..aaaa..." # output compartment_id do bootstrap
+admin_cidr     = "1.2.3.4/32"                     # curl ifconfig.me
+
+# ssh_public_key_path = "~/.ssh/oci_minecraft.pub"
+# ocpus          = 4
+# memory_gb      = 24
+# boot_volume_gb = 100
+# ad_index       = 0

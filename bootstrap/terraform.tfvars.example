@@ -1,0 +1,9 @@
+tenancy_ocid = "ocid1.tenancy.oc1..aaaa..."
+region       = "sa-saopaulo-1"
+alert_email  = "voce@exemplo.com"
+
+# Na moeda da conta (veja Billing > Subscription).
+budget_amount = 5
+
+# Preencha depois do docker push (veja README), e rode terraform apply de novo.
+# function_image = "sa-saopaulo-1.ocir.io/<namespace>/minecraft/budget-stop:1"
